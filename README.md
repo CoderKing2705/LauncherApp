@@ -4,11 +4,9 @@ Android Launcher app using Flutter, developed [live on YouTube](https://youtu.be
 [Learn to build article](https://www.appwriters.dev/blog/lets-build-an-android-launcher-application-with-flutter)
 
 ## Preview
-<img src="screenshots/3.png" height="480px" /> <img src="screenshots/1.png" height="480px" /> <img src="screenshots/2.png" height="480px" />
+<img src="screenshots/three.jpg" height="480px" /> <img src="screenshots/two.jpg" height="480px" /> <img src="screenshots/two.jpg" height="480px" />
+<img src="screenshots/one.jpg" height="480px" />
 
 ## Features
-- Uses [riverpod](https://riverpod.dev) as state management
-- Displays system wallpaper as background
-- List applications in Grid or List view
-- Launch applications
-
+- You can add your installed application into our Home Page of the launcher app. So that we can keep that application into a Kiosk mode.
+- You can also put an exit into the application by putting navigation into the application.
