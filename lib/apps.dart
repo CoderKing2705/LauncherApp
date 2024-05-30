@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kiosk_mode/kiosk_mode.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'app_state.dart';
 
 class AppsPage extends StatefulWidget {
@@ -86,7 +89,7 @@ class _AppsPageState extends State<AppsPage>
                                 ? Colors.white
                                 : Colors.black),
                       ),
-                      onLongPress: () {
+                      onTap: () {
                         final List<ApplicationWithIcon> selectedApps =
                             ref.read(selectedAppsProvider);
                         if (selectedApps.contains(app)) {
@@ -100,8 +103,8 @@ class _AppsPageState extends State<AppsPage>
                                 actions: [
                                   TextButton(
                                     onPressed: () {
+                                      stopKioskMode();
                                       Navigator.of(context).pop();
-                                      // stopKioskMode();
                                     },
                                     child: Text("Yes"),
                                   ),
@@ -129,12 +132,8 @@ class _AppsPageState extends State<AppsPage>
                                       ref
                                           .read(selectedAppsProvider.notifier)
                                           .state = selectedApps;
-                                      Navigator.pushNamed(context, "home").then(
-                                          (value) => {
-                                                value == true
-                                                    ? KioskMode.disabled
-                                                    : KioskMode.enabled
-                                              });
+                                      saveSelectedApp(selectedApps);
+                                      Navigator.pushNamed(context, "home");
                                     },
                                     child: Text("Yes"),
                                   ),
@@ -168,6 +167,14 @@ class _AppsPageState extends State<AppsPage>
         );
       },
     );
+  }
+
+  Future<void> saveSelectedApp(List<ApplicationWithIcon> applications) async {
+    final prefs = await SharedPreferences.getInstance();
+    final applicationJson = jsonEncode(
+      applications.map((map) => map.packageName).toList(),
+    );
+    await prefs.setString("selectedApplications", applicationJson);
   }
 
   void Navigation() {}

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:device_apps/device_apps.dart';
 import 'package:device_policy_controller/device_policy_controller.dart';
@@ -8,17 +9,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kiosk_mode/kiosk_mode.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'app_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await startKioskMode();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
+    startKioskMode();
     return ProviderScope(
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -40,12 +44,35 @@ class MyApp extends StatelessWidget {
                   case "home":
                     return HomePage();
                   default:
-                    return HomePage();
+                    return AppsPage();
                 }
               });
         },
       ),
     );
+  }
+  Future<void> saveSelectedApp(List<ApplicationWithIcon> applications) async {
+    final prefs = await SharedPreferences.getInstance();
+    final applicationJson = jsonEncode(
+      applications.map((map) => map.packageName).toList(),
+    );
+    await prefs.setString("selectedApplications", applicationJson);
+  }
+
+  Future<void> loadSelectedApp() async {
+    final prefs = await SharedPreferences.getInstance();
+    final applicationJson = prefs.getString("selectedApplications");
+    if(applicationJson != null){
+      final packageNames = List<String>.from(jsonDecode(applicationJson));
+      List<ApplicationWithIcon> applications = [];
+
+      for(var packageName in packageNames){
+        var app = await DeviceApps.getApp(packageName, true);
+        if(app != null){
+          applications.add(app as ApplicationWithIcon);
+        }
+      }
+    }
   }
 }
 
@@ -85,7 +112,7 @@ class HomePage extends StatelessWidget with WidgetsBindingObserver {
       ),
       backgroundColor: Colors.transparent,
       body: PopScope(
-        canPop: true,
+        canPop: false,
         child: Consumer(
           builder: (
             context,
@@ -95,30 +122,38 @@ class HomePage extends StatelessWidget with WidgetsBindingObserver {
             final selectedApplication =
                 ref.watch(selectedAppsProvider.notifier).state;
             return selectedApplication.isNotEmpty
-                ? ListView.builder(
+                ? GridView.builder(
                     itemCount: selectedApplication.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 6, childAspectRatio: 1.0),
                     itemBuilder: (BuildContext context, int index) {
                       final application = selectedApplication[index];
-                      return ListTile(
-                        leading: Image.memory(
-                          application.icon,
-                          width: 40,
-                        ),
-                        title: Text(application.appName),
-                        textColor: Colors.white,
+                      return GestureDetector(
                         onTap: () async {
-                          await getKioskMode().then((value) => {
-                                value == KioskMode.disabled
-                                    ? DeviceApps.openApp(
-                                        application.packageName)
-                                    : KioskMode.enabled
-                              });
-                          // stopKioskMode();
+                          await _showConfirmationDialog(context, application);
                         },
+                        child: GridTile(
+                          child: Column(
+                            children: [
+                              Image.memory(
+                                application.icon,
+                                width: 40,
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text(
+                                application.appName,
+                                style: TextStyle(color: Colors.white),
+                                textAlign: TextAlign.start,
+                              )
+                            ],
+                          ),
+                        ),
                       );
                     })
                 : Center(
-                    child: Text('Apps will be display here...'),
+                    child: Text('Apps will be display here... '),
                   );
           },
         ),
@@ -194,4 +229,53 @@ class HomePage extends StatelessWidget with WidgetsBindingObserver {
           );
         });
   }
+}
+
+// This Dialog will get the confirmation from the user to open the application....
+Future<void> _showConfirmationDialog(
+    BuildContext context, Application application) {
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Open Application"),
+          content: Text("Are you Sure you want to open Application?"),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("No")),
+            TextButton(
+                onPressed: () {
+                  stopKioskMode()
+                      .then((value) =>
+                          {DeviceApps.openApp(application.packageName)})
+                      .then((value) => {showMessageAlert(context)});
+
+                  Navigator.of(context).pop();
+                },
+                child: Text("Yes"))
+          ],
+        );
+      });
+}
+
+Future<void> showMessageAlert(BuildContext context) {
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Important!"),
+          content: Text("We are going KioskMode again"),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  startKioskMode();
+                  Navigator.of(context).pop();
+                },
+                child: Text("Ok"))
+          ],
+        );
+      });
 }
