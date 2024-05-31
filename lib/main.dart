@@ -1,15 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:device_apps/device_apps.dart';
 import 'package:device_policy_controller/device_policy_controller.dart';
 import 'package:fl_live_launcher/apps.dart';
-import 'package:fl_live_launcher/kiosk_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kiosk_mode/kiosk_mode.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app_state.dart';
 
@@ -19,7 +16,6 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     startKioskMode();
@@ -50,29 +46,6 @@ class MyApp extends StatelessWidget {
         },
       ),
     );
-  }
-  Future<void> saveSelectedApp(List<ApplicationWithIcon> applications) async {
-    final prefs = await SharedPreferences.getInstance();
-    final applicationJson = jsonEncode(
-      applications.map((map) => map.packageName).toList(),
-    );
-    await prefs.setString("selectedApplications", applicationJson);
-  }
-
-  Future<void> loadSelectedApp() async {
-    final prefs = await SharedPreferences.getInstance();
-    final applicationJson = prefs.getString("selectedApplications");
-    if(applicationJson != null){
-      final packageNames = List<String>.from(jsonDecode(applicationJson));
-      List<ApplicationWithIcon> applications = [];
-
-      for(var packageName in packageNames){
-        var app = await DeviceApps.getApp(packageName, true);
-        if(app != null){
-          applications.add(app as ApplicationWithIcon);
-        }
-      }
-    }
   }
 }
 
@@ -130,6 +103,7 @@ class HomePage extends StatelessWidget with WidgetsBindingObserver {
                       final application = selectedApplication[index];
                       return GestureDetector(
                         onTap: () async {
+                          loadSelectedApp();
                           await _showConfirmationDialog(context, application);
                         },
                         child: GridTile(
@@ -261,6 +235,7 @@ Future<void> _showConfirmationDialog(
       });
 }
 
+// This is to show the message for getting back KioskMode....
 Future<void> showMessageAlert(BuildContext context) {
   return showDialog(
       context: context,
@@ -278,4 +253,10 @@ Future<void> showMessageAlert(BuildContext context) {
           ],
         );
       });
+}
+
+// This function is will get the string from apps.dart where i am saving it to SharedPreferences...
+Future<void> loadSelectedApp() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.getString("selectedApplications");
 }

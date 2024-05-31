@@ -177,8 +177,6 @@ class _AppsPageState extends State<AppsPage>
     await prefs.setString("selectedApplications", applicationJson);
   }
 
-  void Navigation() {}
-
   @override
   bool get wantKeepAlive => true;
 }
