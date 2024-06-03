@@ -54,7 +54,7 @@ class _AppsPageState extends State<AppsPage>
                 ),
                 IconButton(
                     onPressed: () {
-                      Navigator.of(context).pushReplacementNamed('/home');
+                      Navigator.pushNamed(context, "home");
                     },
                     icon: Icon(Icons.home_filled))
               ],

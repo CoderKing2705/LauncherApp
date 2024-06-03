@@ -1,7 +1,5 @@
 import 'dart:async';
-
 import 'package:device_apps/device_apps.dart';
-import 'package:device_policy_controller/device_policy_controller.dart';
 import 'package:fl_live_launcher/apps.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -50,8 +48,6 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget with WidgetsBindingObserver {
-  final dpc = DevicePolicyController.instance;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
