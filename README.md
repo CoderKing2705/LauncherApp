@@ -2,14 +2,17 @@
 [Learn to build article](https://www.appwriters.dev/blog/lets-build-an-android-launcher-application-with-flutter)
 
 ## Preview
-<img src="screenshots/one.jpg" height="480px" />
+<img src="screenshots/Screen%201.jpg" height="480px" />
 
-<img src="screenshots/two.jpg" height="480px" />
+<img src="screenshots/Screen%202.jpg" height="480px" />
 
-<img src="screenshots/three.jpg" height="480px" />
+<img src="screenshots/Screen%203.jpg" height="480px" />
 
-<img src="screenshots/four.jpg" height="480px" />
- 
+<img src="screenshots/Screen%204.jpg" height="480px" />
+
+<img src="screenshots/Screen%205.jpg" height="480px" />
+
+<img src="screenshots/Screen%206.jpg" height="480px" />
 
 ## Features
 - You can add your installed application into our Home Page of the launcher app. So that we can keep that application into a Kiosk mode.
