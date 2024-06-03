@@ -17,5 +17,6 @@
 <img src="screenshots/Screen%207.jpg" height="480px" />
 
 ## Features
-- You can add your installed application into our Home Page of the launcher app. So that we can keep that application into a Kiosk mode.
-- You can also put an exit into the application by putting navigation into the application.
+- The launcher allows users to effortlessly view and manage all installed applications on their system tablet.
+- Users can add selected applications to the Kiosk Mode, ensuring that only designated apps are accessible.
+- Provides a secure and controlled environment, ideal for educational settings, where restricted access to public applications is necessary.
